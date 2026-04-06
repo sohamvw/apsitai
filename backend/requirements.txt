@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+qdrant-client
+google-genai
+langdetect
+python-dotenv
+sentence-transformers
+torch==2.10.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+httpx
+beautifulsoup4
+redis
+apscheduler
