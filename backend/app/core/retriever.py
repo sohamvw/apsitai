@@ -9,7 +9,7 @@ from qdrant_client import QdrantClient
 import os
 
 print("🧠 Loading embedding model...")
-MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 model = SentenceTransformer(MODEL_NAME, use_auth_token=os.getenv("HF_TOKEN"))
 print("✅ Model loaded")
 
