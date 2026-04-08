@@ -343,7 +343,7 @@ ANSWER:
     try:
         gemini  = get_gemini()
         resp    = gemini.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
         answer  = getattr(resp, "text", "").strip() or "No response generated."
