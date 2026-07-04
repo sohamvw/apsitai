@@ -1,155 +1,117 @@
 """
-APSIT AI — Callup Questions
------------------------------
-Instant answers for ultra-common questions.
-Bypasses Qdrant + Gemini → zero cost, zero latency.
+APSIT AI — Portal Shortcuts
 
-HOW TO ADD:
-  Append a dict to CALLUP_QA with:
-    keywords: list[str]  — any word triggers this entry
-    answer:   str        — response text
-    images:   list[str]  — image URLs (optional)
-    pdfs:     list[str]  — PDF URLs (optional)
-    videos:   list[str]  — YouTube URLs (optional)
-    links:    list[dict] — [{label, url}] redirect buttons (optional)
+Only keeps instant redirects for actions that should always open
+an official APSIT portal.
+
+Everything else is answered through:
+Qdrant → Gemini
 """
 
 from typing import Optional
 
 CALLUP_QA = [
 
-    # ── FEES / PAYMENT ────────────────────────────────────────
+    # --------------------------------------------------------
+    # FEES / PAYMENT
+    # --------------------------------------------------------
     {
-        "keywords": ["fee", "fees", "tuition", "payment", "pay", "cost",
-                     "charges", "फी", "शुल्क", "challan"],
+        "keywords": [
+            "fee",
+            "fees",
+            "payment",
+            "pay",
+            "challan",
+            "receipt",
+            "tuition",
+            "cost",
+            "charges",
+            "फी",
+            "शुल्क"
+        ],
         "answer": (
-            "Here are the APSIT fee details. "
-            "You can preview or download the official fee structure below.\n\n"
-            "For online payment, please use the APSIT Payment Portal."
-        ),
-        "images": [
-            "https://www.apsit.edu.in/images/fees/fees_structure.jpg",
-        ],
-        "pdfs": [
-            "https://www.apsit.edu.in/pdf/fee_structure.pdf",
-        ],
-        "videos": [],
-        "links": [
-            {"label": "💳 Pay Fees Online", "url": "https://admission.apsit.org.in/"},
-        ],
-    },
-
-    # ── ADMISSION ─────────────────────────────────────────────
-    {
-        "keywords": ["admission", "apply", "application", "enroll",
-                     "enrollment", "register", "registration", "प्रवेश"],
-        "answer": (
-            "For admissions and all payment-related queries, "
-            "visit the official APSIT Admission Portal."
+            "For fee payment, receipts and fee-related services, "
+            "please use the official APSIT Online Payment Portal."
         ),
         "images": [],
-        "pdfs":   [],
+        "pdfs": [],
         "videos": [],
         "links": [
-            {"label": "🎓 APSIT Admission Portal", "url": "https://admission.apsit.org.in/"},
-        ],
+            {
+                "label": "💳 APSIT Payment Portal",
+                "url": "https://admission.apsit.org.in/"
+            }
+        ]
     },
 
-    # ── ACHIEVEMENTS ─────────────────────────────────────────
+    # --------------------------------------------------------
+    # ADMISSION
+    # --------------------------------------------------------
     {
-        "keywords": ["achievement", "achievements", "award", "awards",
-                     "won", "prize", "rank", "accomplishment", "milestone"],
+        "keywords": [
+            "admission",
+            "apply",
+            "application",
+            "register",
+            "registration",
+            "enroll",
+            "enrollment",
+            "प्रवेश"
+        ],
         "answer": (
-            "APSIT has achieved many milestones! "
-            "Below are some highlights including videos and the institute brochure."
+            "For admissions, applications and admission status, "
+            "please visit the official APSIT Admission Portal."
         ),
         "images": [],
-        "pdfs": [
-            "https://www.apsit.edu.in/pdf/institute_brochure.pdf",
-        ],
-        "videos": [
-            "https://www.youtube.com/@APSITOfficial",
-        ],
-        "links": [
-            {"label": "📖 View Brochure",    "url": "https://www.apsit.edu.in/pdf/institute_brochure.pdf"},
-            {"label": "🏆 Achievements Page", "url": "https://www.apsit.edu.in/achievements"},
-        ],
-    },
-
-    # ── BROCHURE ─────────────────────────────────────────────
-    {
-        "keywords": ["brochure", "prospectus", "catalogue", "booklet"],
-        "answer": "Here is the official APSIT Institute Brochure. Preview or download it below:",
-        "images": [],
-        "pdfs": [
-            "https://www.apsit.edu.in/pdf/institute_brochure.pdf",
-        ],
+        "pdfs": [],
         "videos": [],
         "links": [
-            {"label": "📥 Download Brochure", "url": "https://www.apsit.edu.in/pdf/institute_brochure.pdf"},
-        ],
+            {
+                "label": "🎓 APSIT Admission Portal",
+                "url": "https://admission.apsit.org.in/"
+            }
+        ]
     },
 
-    # ── MOODLE / ANNOUNCEMENTS ────────────────────────────────
+    # --------------------------------------------------------
+    # MOODLE
+    # --------------------------------------------------------
     {
-        "keywords": ["moodle", "elearn", "e-learn", "lms", "announcement",
-                     "notice", "circular", "notification"],
+        "keywords": [
+            "moodle",
+            "elearn",
+            "e-learn",
+            "lms"
+        ],
         "answer": (
-            "APSIT's e-learning portal (Moodle) has important announcements, "
-            "study materials, and lecture notes. Check it regularly!"
+            "You can access APSIT's Moodle platform using the official portal below."
         ),
         "images": [],
-        "pdfs":   [],
+        "pdfs": [],
         "videos": [],
         "links": [
-            {"label": "📚 Open Moodle Portal", "url": "https://elearn.apsit.edu.in/moodle/"},
-        ],
-    },
-
-    # ── PLACEMENTS ───────────────────────────────────────────
-    {
-        "keywords": ["placement", "placements", "job", "jobs", "campus",
-                     "recruit", "company", "package", "salary", "career", "hiring"],
-        "answer": (
-            "APSIT has an excellent placement record with top companies visiting every year. "
-            "Visit the placements page for company names, packages, and student testimonials."
-        ),
-        "images": [],
-        "pdfs":   [],
-        "videos": [],
-        "links": [
-            {"label": "💼 Placements Page", "url": "https://www.apsit.edu.in/placements"},
-        ],
-    },
-
-    # ── CONTACT ──────────────────────────────────────────────
-    {
-        "keywords": ["contact", "phone", "email", "address", "location",
-                     "office", "helpline", "reach", "संपर्क"],
-        "answer": (
-            "You can reach APSIT at:\n"
-            "📍 A-45, Road No.1, MIDC, Andheri East, Mumbai - 400 093\n"
-            "📞 +91-22-2895 5500\n"
-            "🌐 www.apsit.edu.in"
-        ),
-        "images": [],
-        "pdfs":   [],
-        "videos": [],
-        "links": [
-            {"label": "🌐 Visit Website", "url": "https://www.apsit.edu.in/contact"},
-        ],
-    },
+            {
+                "label": "📚 APSIT Moodle",
+                "url": "https://elearn.apsit.edu.in/moodle/"
+            }
+        ]
+    }
 
 ]
 
 
 def match_callup(query: str) -> Optional[dict]:
     """
-    Returns the first matching callup entry or None.
-    Matching is keyword-based on lowercased query.
+    Returns a portal shortcut if the query matches.
+
+    All other questions continue through:
+    Retriever → Gemini
     """
-    q_lower = query.lower()
-    for entry in CALLUP_QA:
-        if any(kw in q_lower for kw in entry["keywords"]):
-            return entry
+
+    q = query.lower().strip()
+
+    for item in CALLUP_QA:
+        if any(keyword in q for keyword in item["keywords"]):
+            return item
+
     return None

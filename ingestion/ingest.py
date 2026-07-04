@@ -15,24 +15,42 @@ load_dotenv()
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
-COLLECTION = "apsit_final"
+COLLECTION = os.getenv("QDRANT_COLLECTION")
+
+if not COLLECTION:
+    raise ValueError("QDRANT_COLLECTION is not set in .env")
 
 print("🔌 Connecting Qdrant...")
 client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 
-# 🔥 RESET COLLECTION
-try:
-    client.delete_collection(COLLECTION)
-except:
-    pass
+print(f"📂 Using collection: {COLLECTION}")
 
-client.create_collection(
-    collection_name=COLLECTION,
-    vectors_config=VectorParams(size=384, distance=Distance.COSINE),
-)
+if not client.collection_exists(COLLECTION):
+    print("🆕 Collection not found. Creating...")
+
+    client.create_collection(
+        collection_name=COLLECTION,
+        vectors_config=VectorParams(
+            size=384,
+            distance=Distance.COSINE
+        ),
+    )
+
+    print("✅ Collection created successfully!")
+
+else:
+    print("✅ Collection already exists.")
 
 print("🧠 Loading model...")
-model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+
+EMBEDDING_MODEL = os.getenv(
+    "EMBEDDING_MODEL",
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+
+print(f"🧠 Loading embedding model: {EMBEDDING_MODEL}")
+
+model = SentenceTransformer(EMBEDDING_MODEL)
 
 
 def safe_upsert(points):
@@ -43,13 +61,14 @@ def safe_upsert(points):
             wait=True
         )
     except Exception as e:
-        print("❌ Skipped batch:", e)
+        print(f"❌ Failed to upload batch of {len(points)} vectors")
+        print(e)
 
 
 def ingest():
 
     print("🚀 Crawling...")
-    pages = crawl("https://www.apsit.edu.in", max_pages=3000)
+    pages = crawl("https://www.apsit.edu.in", max_pages=5000)
 
     batch = []
     BATCH_SIZE = 15  # 🔥 FIX TIMEOUT
@@ -62,13 +81,18 @@ def ingest():
 
         chunks = chunk_text(page["text"])
 
-        for chunk in chunks:
+        # ✅ Batch encode all chunks at once
+        vectors = model.encode(
+            chunks,
+            batch_size=32,
+            show_progress_bar=False
+        )
 
-            vector = model.encode(chunk).tolist()
+        for chunk, vector in zip(chunks, vectors):
 
             batch.append({
                 "id": str(uuid4()),
-                "vector": vector,
+                "vector": vector.tolist(),
                 "payload": {
                     "content": chunk,
                     "url": page["url"],

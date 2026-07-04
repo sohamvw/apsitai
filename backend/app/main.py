@@ -1,8 +1,8 @@
 """
-APSIT AI Assistant — Upgraded main.py
+APSIT AI Assistant
 =======================================
 Features added:
-  ✅ Rate limiting (10 req/min per IP)
+  ✅ Rate limiting (20 req/min per IP)
   ✅ Redis-backed persistent session memory
   ✅ Answer cache — same question = instant answer, no re-query
   ✅ Agentic query breakdown (Gemini breaks complex Q into sub-queries)
@@ -43,16 +43,18 @@ app = FastAPI(title="APSIT AI Assistant")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://apsit-ai.vercel.app",
+        "https://apsit-ejizlytj4-sohamvws-projects.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # ──────────────────────────────────────────────────────────
-# RATE LIMITER  (10 requests / 60 seconds per IP)
+# RATE LIMITER  (20 requests / 60 seconds per IP)
 # ──────────────────────────────────────────────────────────
-RATE_LIMIT = 10
+RATE_LIMIT = 20
 RATE_WINDOW = 60
 _rate_store: dict[str, list] = defaultdict(list)
 
@@ -133,12 +135,12 @@ def decompose_query(query: str) -> list[str]:
 You are a query analyzer for APSIT college AI assistant.
 Break this student question into 1-3 focused sub-queries for better search.
 Return ONLY a JSON array of strings. No explanation.
-Example: ["fees for BTech CSE", "scholarship options at APSIT"]
+Example: ["fees for BE CSE", "scholarship options at APSIT"]
 
 Question: {query}
 """
         resp = gemini.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt
         )
         text = resp.text.strip().strip("```json").strip("```").strip()
@@ -323,6 +325,10 @@ RULES:
 - Do NOT mix languages. {lang_instruction}
 - End every answer with: "For more queries, visit the college campus or contact us at +91-22-2895 5500."
 - Do NOT use **, *, or markdown bold symbols.
+- If the answer is not in the context, politely say you don't know and suggest visiting the campus or calling the office.
+- Provide links to official APSIT pages when relevant. Do not link to external sites unless they are official APSIT resources.
+- If the question is about fees, admission, or Moodle, provide the relevant portal link.
+- dont provide other links while answering the question. Only provide links if they are relevant to the answer.like about admission then admission portal link, about fees then payment portal link, about moodle then moodle portal link.
 
 CONVERSATION HISTORY:
 {history_text if history_text else "No prior conversation."}
