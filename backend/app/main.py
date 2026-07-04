@@ -43,14 +43,12 @@ app = FastAPI(title="APSIT AI Assistant")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://apsit-ai.vercel.app",
-        "https://apsit-ejizlytj4-sohamvws-projects.vercel.app",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 # ──────────────────────────────────────────────────────────
 # RATE LIMITER  (20 requests / 60 seconds per IP)
 # ──────────────────────────────────────────────────────────
